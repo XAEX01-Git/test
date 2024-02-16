@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        body {
+            font-family: 'Helvetica', sans-serif;
+            background-color: #17202A;
+            color: #EAECEE;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #chat-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        #conversation {
+            height: 300px;
+            overflow-y: scroll;
+            padding: 20px;
+        }
+        #message-input {
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #CCCCCC;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        #send-button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="conversation"></div>
+        <div style="display: flex; padding: 20px;">
+            <input type="text" id="message-input" placeholder="Your message">
+            <button id="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    <script>
+        function sendMessage() {
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value;
+            if (message.trim() !== '') {
+                appendMessage('You: ' + message);
+                // Call Flask route to get bot response and append it
+                fetch('/get_bot_response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message }),
+                })
+                .then(response => response.json())
+                .then(data => appendMessage(data.response));
+                messageInput.value = '';
+            }
+        }
+
+        function appendMessage(message) {
+            var conversation = document.getElementById('conversation');
+            var newMessage = document.createElement('div');
+            newMessage.innerHTML = message;
+            newMessage.style.marginBottom = '10px';
+            conversation.appendChild(newMessage);
+            conversation.scrollTop = conversation.scrollHeight;  // Auto-scroll to the bottom
+        }
+    </script>
+</body>
+</html>
